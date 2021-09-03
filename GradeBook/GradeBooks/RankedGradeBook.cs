@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using GradeBook.Enums;
 
 namespace GradeBook.GradeBooks
@@ -42,8 +43,8 @@ namespace GradeBook.GradeBooks
             if (totalStudents < 5)
                 throw new InvalidOperationException("Ranked-grading requires a minimum of 5 students to work.");
 
-            sortStudents();
-            var gradeIndex = findGradeIndex(averageGrade);
+            var sortedStudents = getSortedStudents();
+            var gradeIndex = findGradeIndex(averageGrade, sortedStudents);
 
             switch ((double)(gradeIndex + 1) / (totalStudents + 1))
             {
@@ -60,19 +61,23 @@ namespace GradeBook.GradeBooks
             }
         }
 
-        private void sortStudents()
+        private List<Student> getSortedStudents()
         {
-            Students.Sort(delegate (Student studentA, Student studentB)
+            List<Student> studentsToSort = new List<Student>(Students);
+            
+            studentsToSort.Sort(delegate (Student studentA, Student studentB)
             {
                 return studentA.AverageGrade.CompareTo(studentB.AverageGrade);
             });
+
+            return studentsToSort;
         }
 
-        private int findGradeIndex(double averageGrade)
+        private int findGradeIndex(double averageGrade, List<Student> sortedStudents)
         {
             var gradeIndex = 0;
 
-            while (gradeIndex < Students.Count && averageGrade > Students[gradeIndex].AverageGrade)
+            while (gradeIndex < Students.Count && averageGrade > sortedStudents[gradeIndex].AverageGrade)
             {
                 gradeIndex++;
             }
